@@ -1,7 +1,7 @@
 import kivy
 
 from bluetoothcube.patterns import (
-    CFOP_CROSS, CFOP_F2L, CFOP_OLL, CFOP_PLL)
+    CFOP_CROSS, CFOP_F2L, CFOP_OLL, CFOP_PLL, PETRUS_2X2X2, PETRUS_2X2X3)
 
 from typing import Dict, List, Tuple
 
@@ -13,6 +13,14 @@ STAGES = {
         ('PLL', CFOP_PLL),
         ('DONE', None)
     ],
+    'PETRUS': [
+        ('2x2x2', PETRUS_2X2X2),
+        ('2x2x3', PETRUS_2X2X3),
+        ('F2L', CFOP_F2L),
+        ('OLL', CFOP_OLL),
+        ('PLL', CFOP_PLL),
+        ('DONE', None)
+    ]
 }
 
 
@@ -26,7 +34,8 @@ class Analyzer(kivy.event.EventDispatcher):
         self.cube = cube
         self.timer = timer
 
-        self.method = 'CFOP'
+        # self.method = 'CFOP'
+        self.method = 'PETRUS'
         self.stages = STAGES[self.method]
 
         self.cube.bind(on_state_changed=self.on_state_changed)

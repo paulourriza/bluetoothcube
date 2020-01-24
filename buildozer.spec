@@ -88,16 +88,16 @@ fullscreen = 0
 android.permissions = WAKE_LOCK, BLUETOOTH, BLUETOOTH_ADMIN, ACCESS_COARSE_LOCATION
 
 # (int) Android API to use
-android.api = 21
+# android.api = 21
 
 # (int) Minimum API required
-android.minapi = 21
+# android.minapi = 21
 
 # (int) Android SDK version to use
 android.sdk = 20
 
 # (str) Android NDK version to use
-android.ndk = 14b
+android.ndk = 19b
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
 #android.private_storage = True
@@ -114,7 +114,7 @@ android.ndk = 14b
 # (bool) If True, then skip trying to update the Android sdk
 # This can be useful to avoid excess Internet downloads or save time
 # when an update is due and you just want to test/build your package
-android.skip_update = True
+android.skip_update = False
 
 # (str) Android entry point, default is ok for Kivy-based app
 #android.entrypoint = org.renpy.android.PythonActivity

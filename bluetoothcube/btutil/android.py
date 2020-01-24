@@ -109,7 +109,7 @@ class BluetoothCubeScanner(kivy.event.EventDispatcher):
         self.devices_found.add(addr)
 
         name = device.getName()
-        if name and (name.startswith("GiC") or name.startswith("GiS")):
+        if name and (name.startswith("Gi")):
             self.dispatch('on_cube_found', DeviceInfo(
                 device.getAddress(), device.getName(), device))
 
@@ -191,10 +191,21 @@ class BluetoothCubeConnection(kivy.event.EventDispatcher):
         print("Desc write!")
 
     def on_gatt_characteristic_changed(self, gatt, characteristic):
+        value = characteristic.getValue()
         if characteristic.equals(self.state_response_characteristic):
-            self.dispatch('on_state_updated', characteristic.getValue())
+            if value[18] == 0xa7:
+                bla=""
+                key = [176, 81, 104, 224, 86, 137, 237, 119, 38, 26, 193, 161, 210, 126, 150, 81, 93, 13, 236, 249, 89, 235, 88, 24, 113, 81, 214, 131, 130, 199, 2, 169, 39, 165, 171, 41]
+                k = value[19]
+                k1 = k >> 4 & 0xf;
+                k2 = k & 0xf;
+                for i in range(0,len(value)-2):
+                    move = (value[i] + key[i + k1] + key[i + k2]) & 0xff;
+                    bla+="{0:02x}".format(move)
+                value=bytes.fromhex(bla)
+            self.dispatch('on_state_updated', value)
         else:
-            print(f"Characteristic {characteristic.getUuid()} changed!")
+            print(f"Characteristic {characteristic.getUuid()} changed to {value}")
 
     def enable_notifications(self):
         # BluetoothGattService

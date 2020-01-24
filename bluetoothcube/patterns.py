@@ -21,11 +21,20 @@ def generate_variants_from_f(pattern: FaceCube) -> List[FaceCube]:
             pattern.rotated("x"), pattern.rotated("x'"),
             pattern.rotated("y"), pattern.rotated("y'")]
 
-def generate_corner_variants_from_f(pattern: FaceCube) -> List[FaceCube]:
-    bottom = [pattern, pattern.rotated("x").rotated("x"),
-            pattern.rotated("x"), pattern.rotated("x'")]
-    top = [p.rotated("y").rotated("y") for p in bottom]        
+def generate_2x2x2_variants_from_f(pattern: FaceCube) -> List[FaceCube]:
+    # 8 variants - 1 per corner
+    bottom = [pattern, pattern.rotated("y").rotated("y"),
+            pattern.rotated("y"), pattern.rotated("y'")]
+    top = [p.rotated("x").rotated("x") for p in bottom]
     return bottom + top
+
+def generate_2x2x3_variants_from_f(pattern: FaceCube) -> List[FaceCube]:
+    # 12 variants - 4 sideways rotations added to 2x2x2 variants
+    bottom = [pattern, pattern.rotated("y").rotated("y"),
+            pattern.rotated("y"), pattern.rotated("y'")]
+    side = [p.rotated("x") for p in bottom]
+    top = [p.rotated("x").rotated("x") for p in bottom]
+    return bottom + side + top
 
 GENERIC = [
     ("solved", compile_pattern("""
@@ -124,7 +133,7 @@ L L L F F F R R R B B B
 """)]
 
 
-PETRUS_2X2X2 = generate_corner_variants_from_f(compile_pattern("""
+PETRUS_2X2X2 = generate_2x2x2_variants_from_f(compile_pattern("""
       . . .
       . U .
       . . .
@@ -136,7 +145,7 @@ PETRUS_2X2X2 = generate_corner_variants_from_f(compile_pattern("""
       . . .
 """))
 
-PETRUS_2X2X3 = generate_corner_variants_from_f(compile_pattern("""
+PETRUS_2X2X3 = generate_2x2x3_variants_from_f(compile_pattern("""
       . . .
       . U .
       . . .

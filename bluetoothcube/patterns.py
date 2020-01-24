@@ -4,6 +4,7 @@ from bluetoothcube.cubestate import FaceCube
 
 from typing import List
 
+from itertools import permutations
 
 # TODO: These functions deserve some unit tests.
 
@@ -35,6 +36,36 @@ def generate_2x2x3_variants_from_f(pattern: FaceCube) -> List[FaceCube]:
     side = [p.rotated("x") for p in bottom]
     top = [p.rotated("x").rotated("x") for p in bottom]
     return bottom + side + top
+
+def unique_perms(series):
+    return {"".join(p) for p in permutations(series)}
+
+def generate_petrus_eo_perms() -> List[FaceCube]:
+    # 20 variants before rotation, 240 with 12 2x2x3 rotations
+    eo_base_pattern = list("....U................LL..F..RRBBBLL.....RRBBB...DDDDDD")
+    edge_face = {}
+    # edge faces towards correct center
+    edge_face['towards'] = [1,  3,  5,  24, 26, 37]
+    # edge faces away from correct center
+    edge_face['away']    = [19, 10, 16, 23, 27, 46]
+
+    eo_perms = sorted(unique_perms('UUUFFF'))
+    variants = []
+    for p in eo_perms: # 1 for each unique EO permutation
+        pat = eo_base_pattern.copy()
+        for i in range(6): # 1 for each EO edge
+            if i < 3: # it's a U edge
+                if p[i] == 'U':
+                    pat[edge_face['towards'][i]] = 'U'
+                else:
+                    pat[edge_face['away'][i]] = 'F'
+            else: # it's an F edge
+                if p[i] == 'F':
+                    pat[edge_face['towards'][i]] = 'F'
+                else:
+                    pat[edge_face['away'][i]] = 'U'
+        variants += generate_2x2x3_variants_from_f(compile_pattern(''.join(pat)))
+    return variants
 
 GENERIC = [
     ("solved", compile_pattern("""
@@ -150,9 +181,11 @@ PETRUS_2X2X3 = generate_2x2x3_variants_from_f(compile_pattern("""
       . U .
       . . .
 . . . . . . . . . . . .
-. L L F F F R R . . B .
-. L L F F F R R . . . .
-      D D D
-      D D D
+L L . . F . . R R B B B
+L L . . . . . R R B B B
       . . .
+      D D D
+      D D D
 """))
+
+PETRUS_EO = generate_petrus_eo_perms()

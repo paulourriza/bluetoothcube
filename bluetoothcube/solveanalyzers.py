@@ -1,7 +1,7 @@
 import kivy
 
 from bluetoothcube.patterns import (
-    CFOP_CROSS, CFOP_F2L, CFOP_OLL, CFOP_PLL, PETRUS_2X2X2, PETRUS_2X2X3)
+    CFOP_CROSS, CFOP_F2L, CFOP_OLL, CFOP_PLL, PETRUS_2X2X2, PETRUS_2X2X3, PETRUS_EO)
 
 from typing import Dict, List, Tuple
 
@@ -16,6 +16,7 @@ STAGES = {
     'PETRUS': [
         ('2x2x2', PETRUS_2X2X2),
         ('2x2x3', PETRUS_2X2X3),
+        ('EO', PETRUS_EO),
         ('F2L', CFOP_F2L),
         ('OLL', CFOP_OLL),
         ('PLL', CFOP_PLL),

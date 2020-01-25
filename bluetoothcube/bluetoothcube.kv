@@ -10,6 +10,15 @@
         font_size: '50sp'
         height: '80sp'
 
+<MethodButton>:
+    button: button
+    size_hint: 1, None
+    height: button.height + dp(30)
+    Button:
+        id: button
+        size_hint: 0.85, None
+        font_size: '50sp'
+        height: '80sp'
 
 <CubeStateDisplay>:
     font_size: '20dp'
@@ -246,6 +255,7 @@
 
 <BluetoothCubeRoot>:
     cubelist: cubelist
+    methodlist: methodlist
     connecting_label: connecting_label
     connecting_progressbar: connecting_progressbar
     connecting_cancelbutton: connecting_cancelbutton
@@ -340,17 +350,21 @@
                 height: '40dp'
                 HideableButton:
                     id: disconnectbutton
-                    size_hint: 0.33, 1
-                    text: "Disconnect cube"
+                    size_hint: 0.25, 1
+                    text: "Disconnect"
                     on_release: app.disconnect_cube()
                 Button:
-                    size_hint: 0.33, 1
-                    text: "Reset cube"
+                    size_hint: 0.25, 1
+                    text: "Reset"
                     on_release: app.reset_cube()
                 Button:
-                    size_hint: 0.33, 1
+                    size_hint: 0.25, 1
                     text: "Solve"
                     on_release: app.solve()
+                Button:
+                    size_hint: 0.25, 1
+                    text: "Method"
+                    on_release: app.select_method()
 
             # BoxLayout:
             #     orientation: 'horizontal'
@@ -408,3 +422,17 @@
                 text: "Start" if not app.timer.running else "Stop"
                 font_size: dp(40)
                 height: self.font_size + dp(15)
+
+    Screen:
+        name: "method-selection"
+        BoxLayout:
+            orientation: 'vertical'
+            Label:
+                size_hint: 1, None
+                text: "Select a method:"
+                font_size: '40sp'
+                height: '42sp'
+            BoxLayout:
+                orientation: 'vertical'
+                id: methodlist
+                size_hint: 1, 1

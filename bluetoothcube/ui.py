@@ -184,6 +184,10 @@ class CubeStateDisplay(Label):
         self.text = '\n'.join(new_state.get_representation_strings())
 
 
+class MethodButton(AnchorLayout):
+    button = kivy.properties.ObjectProperty(None)
+
+
 class HideableLabel(Label, Hideable):
     pass
 

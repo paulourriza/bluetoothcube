@@ -35,8 +35,7 @@ class Analyzer(kivy.event.EventDispatcher):
         self.cube = cube
         self.timer = timer
 
-        # self.method = 'CFOP'
-        self.method = 'PETRUS'
+        self.method = 'CFOP'
         self.stages = STAGES[self.method]
 
         self.cube.bind(on_state_changed=self.on_state_changed)
@@ -59,6 +58,9 @@ class Analyzer(kivy.event.EventDispatcher):
         # TBF, it's difficult to define what should happen when method is
         # switched mid-solve.
         self.detect_stage_changes()
+
+    def get_methods(self):
+        return list(STAGES.keys())
 
     def on_solve_started(self, timer):
         # print("CFOP analyzer started")

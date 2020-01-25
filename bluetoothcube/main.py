@@ -13,7 +13,7 @@ from bluetoothcube.btutil import (
     BluetoothCubeScanner, BluetoothCubeConnection)
 
 from bluetoothcube.bluetoothcube import BluetoothCube, ScrambleDetector
-from bluetoothcube.ui import CubeButton, BluetoothCubeRoot
+from bluetoothcube.ui import CubeButton, BluetoothCubeRoot, MethodButton
 from bluetoothcube.timer import Timer
 from bluetoothcube.timehistory import TimeHistory
 from bluetoothcube.solveanalyzers import Analyzer
@@ -33,6 +33,7 @@ if kivy.platform == "linux":
 
 class BluetoothCubeApp(App):
     cubelist = kivy.properties.ObjectProperty(None)
+    methodlist = kivy.properties.ObjectProperty(None)
 
     def __init__(self):
         super(BluetoothCubeApp, self).__init__()
@@ -71,7 +72,12 @@ class BluetoothCubeApp(App):
             on_manual_scramble_finished=lambda sd: self.autoprime())
 
         self.analyzer = Analyzer(self.cube, self.timer)
+        self.method_count = 0
+        self.methods = self.analyzer.get_methods()
+        self.method_buttons = []
+
         self.timer.use_analyzer(self.analyzer)
+
 
         # When the app starts, start a scan.
         Clock.schedule_once(lambda td: self.start_scan(), 1)
@@ -81,6 +87,8 @@ class BluetoothCubeApp(App):
             lambda td:
             self.timehistory.use_file(
                 os.path.join(self.user_data_dir, "times.txt")), 1)
+
+        Clock.schedule_once(lambda td: self.create_method_list(), 1)
 
     def build(self):
         return BluetoothCubeRoot()
@@ -152,7 +160,7 @@ class BluetoothCubeApp(App):
 
     def continue_without_cube(self):
         self.cube.disable_connection()
-        self.root.disconnectbutton.text = "Connect a cube"
+        self.root.disconnectbutton.text = "Connect"
         self.root.transition.direction = 'left'
         self.root.current = 'timer'
 
@@ -170,7 +178,7 @@ class BluetoothCubeApp(App):
         print("Cube ready!")
         self.cube.set_connection(self.cube_connection)
 
-        self.root.disconnectbutton.text = "Disconnect cube"
+        self.root.disconnectbutton.text = "Disconnect"
         self.root.transition.direction = 'left'
         self.root.current = 'timer'
 
@@ -220,6 +228,21 @@ class BluetoothCubeApp(App):
         solution_popup = Factory.SolutionPopup()
         solution_popup.ids["solution_label"].text = solution
         solution_popup.open()
+
+    def on_method_button_pressed(self, instance):
+        self.analyzer.set_method(instance.text)
+        self.root.current = 'timer'
+
+    def select_method(self):
+        self.root.current = 'method-selection'
+
+    def create_method_list(self):
+        for m in self.methods:
+            button = MethodButton()
+            button.button.text = m
+            button.button.bind(on_press = self.on_method_button_pressed)
+            self.method_buttons.append(button)
+            self.root.methodlist.add_widget(button,index=self.method_count)
 
     def autoprime(self):
         if not self.timer.running and not self.timer.primed:

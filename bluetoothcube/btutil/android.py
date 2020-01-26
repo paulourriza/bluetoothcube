@@ -1,5 +1,6 @@
 import kivy
 from jnius import autoclass, PythonJavaClass, java_method, cast
+from android.permissions import request_permissions, check_permission, Permission
 
 from bluetoothcube.btutil.const import (
     CUBE_STATE_SERVICE, CUBE_STATE_RESPONSE,
@@ -39,6 +40,8 @@ class BluetoothCubeScanner(kivy.event.EventDispatcher):
         super().__init__()
         self.default_adapter = BluetoothAdapter.getDefaultAdapter()
         self.gatt_callback = None
+        if not check_permission('android.permission.ACCESS_COARSE_LOCATION'):
+            request_permissions([Permission.ACCESS_COARSE_LOCATION])
 
     class scanCallback(PythonJavaClass):
         __javainterfaces__ = [

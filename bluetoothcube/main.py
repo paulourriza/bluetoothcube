@@ -12,7 +12,7 @@ import kociemba
 from bluetoothcube.btutil import (
     BluetoothCubeScanner, BluetoothCubeConnection)
 
-from bluetoothcube.bluetoothcube import BluetoothCube, ScrambleDetector
+from bluetoothcube.bluetoothcube import BluetoothCube, ScrambleDetector, ScrambleGenerator
 from bluetoothcube.ui import CubeButton, BluetoothCubeRoot, MethodButton
 from bluetoothcube.timer import Timer
 from bluetoothcube.timehistory import TimeHistory
@@ -78,6 +78,7 @@ class BluetoothCubeApp(App):
 
         self.timer.use_analyzer(self.analyzer)
 
+        self.scrambler = ScrambleGenerator()
 
         # When the app starts, start a scan.
         Clock.schedule_once(lambda td: self.start_scan(), 1)
@@ -89,6 +90,7 @@ class BluetoothCubeApp(App):
                 os.path.join(self.user_data_dir, "times.txt")), 1)
 
         Clock.schedule_once(lambda td: self.create_method_list(), 1)
+        Clock.schedule_once(lambda td: self.get_new_scramble(), 1)
 
     def build(self):
         return BluetoothCubeRoot()
@@ -197,10 +199,12 @@ class BluetoothCubeApp(App):
 
     # Triggered when the timer records a new time.
     def on_new_time(self, timer, time):
+        self.get_new_scramble()
         self.timehistory.add_time(time)
 
     # Called when used pressed the "reset cube" button.
     def reset_cube(self, popup=True):
+        print(self.scrambler.get_scramble())
         if not self.cube_connection:
             return
 
@@ -235,6 +239,9 @@ class BluetoothCubeApp(App):
 
     def select_method(self):
         self.root.current = 'method-selection'
+
+    def get_new_scramble(self):
+        self.root.scramble.text = self.scrambler.get_scramble()
 
     def create_method_list(self):
         for m in self.methods:

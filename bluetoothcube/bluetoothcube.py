@@ -1,4 +1,5 @@
 import kivy
+from random import randint
 
 from kivy.clock import Clock
 from kociemba.pykociemba.color import color_keys
@@ -173,3 +174,23 @@ class ScrambleDetector(kivy.event.EventDispatcher):
 
     def on_manual_scramble_finished(self, *args):
         pass
+
+class ScrambleGenerator():
+    def get_scramble(self):
+        scramble_length = 25
+        moves = ["R", "R'", "R2", "L", "L'", "L2", "U", "U'", "U2", "D", "D'", "D2", "F", "F'", "F2", "B", "B'", "B2"]
+        scramble = ""
+
+        for i in range(0, scramble_length):
+            random_move = randint(0, len(moves) - 1)
+
+            if i > 0:
+                while moves[random_move][0] == prev_move[0]:
+                    random_move = randint(0, len(moves) - 1)			
+
+            scramble += " " + moves[random_move]
+            prev_move = moves[random_move]
+
+        return scramble
+
+

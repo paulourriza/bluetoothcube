@@ -260,6 +260,7 @@
     connecting_progressbar: connecting_progressbar
     connecting_cancelbutton: connecting_cancelbutton
     disconnectbutton: disconnectbutton
+    scramble: scramble 
 
     Screen:
         name: "cube-selection"
@@ -393,6 +394,16 @@
                     height: '150dp'
                 AnalysisDisplay:
                     size_hint: 0.5, 1
+
+            Button:
+                height: self.texture_size[1]
+                text_size:  0.9*self.width, None
+                id: scramble
+                halign: 'center'
+                size_hint: 1, None 
+                text: "generating..."
+                font_size: '30sp'
+                on_release: app.get_new_scramble() 
 
             TimeDisplay:
                 time_text_ratio: 0.38

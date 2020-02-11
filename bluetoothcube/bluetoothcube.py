@@ -191,7 +191,6 @@ class ScrambleGenerator(Thread):
         while not self.exit_now.is_set():
             if len(self.scrambles) < self.max_scrambles:
                 s = self.generate_scramble()
-                print('count ', len(self.scrambles), ': ', s)
                 self.scrambles.append(s)
                 self.buffer_not_empty.set()
             else:

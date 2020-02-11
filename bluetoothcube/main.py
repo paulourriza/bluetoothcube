@@ -79,6 +79,7 @@ class BluetoothCubeApp(App):
         self.timer.use_analyzer(self.analyzer)
 
         self.scrambler = ScrambleGenerator()
+        self.scrambler.start()
 
         # When the app starts, start a scan.
         Clock.schedule_once(lambda td: self.start_scan(), 1)
@@ -90,12 +91,14 @@ class BluetoothCubeApp(App):
                 os.path.join(self.user_data_dir, "times.txt")), 1)
 
         Clock.schedule_once(lambda td: self.create_method_list(), 1)
-        Clock.schedule_once(lambda td: self.get_new_scramble(), 1)
 
     def build(self):
         return BluetoothCubeRoot()
 
     def on_stop(self):
+        # Terminate scrambler thread
+        self.scrambler.exit()
+
         # Save time history.
         self.timehistory.persist()
 
@@ -107,7 +110,6 @@ class BluetoothCubeApp(App):
 
     def start_scan(self):
         print("Starting a scan...")
-
         for button in self.cube_buttons:
             self.root.cubelist.remove_widget(button)
         self.cube_buttons = []
@@ -159,12 +161,14 @@ class BluetoothCubeApp(App):
 
         # Calling this directly might freeze UI for a moment
         Clock.schedule_once(lambda td: self.cube_connection.connect())
+        Clock.schedule_once(lambda td: self.get_new_scramble())
 
     def continue_without_cube(self):
         self.cube.disable_connection()
         self.root.disconnectbutton.text = "Connect"
         self.root.transition.direction = 'left'
         self.root.current = 'timer'
+        Clock.schedule_once(lambda td: self.get_new_scramble())
 
     def on_cube_connecting(self, connection, message, percent):
         self.root.connecting_label.text = message
@@ -204,7 +208,6 @@ class BluetoothCubeApp(App):
 
     # Called when used pressed the "reset cube" button.
     def reset_cube(self, popup=True):
-        print(self.scrambler.get_scramble())
         if not self.cube_connection:
             return
 

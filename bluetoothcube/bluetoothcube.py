@@ -1,10 +1,10 @@
 import kivy
-from random import randint
 
 from kivy.clock import Clock
 from kociemba.pykociemba.color import color_keys
 from kociemba.pykociemba.tools import randomCube
 from kociemba import solve
+from threading import Thread, Event
 
 from bluetoothcube.cubestate import CubieCube, MOVES_GIIKER_TO_KOCIEMBA
 
@@ -177,8 +177,36 @@ class ScrambleDetector(kivy.event.EventDispatcher):
     def on_manual_scramble_finished(self, *args):
         pass
 
-class ScrambleGenerator():
+class ScrambleGenerator(Thread):
+    def __init__(self):
+        self.max_scrambles = 5
+        self.scrambles = []
+        self.buffer_not_full = Event()
+        self.buffer_not_full.set()
+        self.buffer_not_empty = Event()
+        self.exit_now = Event()
+        Thread.__init__(self)
+
+    def run(self):
+        while not self.exit_now.is_set():
+            if len(self.scrambles) < self.max_scrambles:
+                s = self.generate_scramble()
+                print('count ', len(self.scrambles), ': ', s)
+                self.scrambles.append(s)
+                self.buffer_not_empty.set()
+            else:
+                self.buffer_not_full.clear()
+                self.buffer_not_full.wait()
+
     def get_scramble(self):
+        if len(self.scrambles) == 0:
+            self.buffer_not_empty.clear()
+            self.buffer_not_empty.wait()
+        s = self.scrambles.pop()
+        self.buffer_not_full.set()
+        return s
+
+    def generate_scramble(self):
         s = solve(randomCube())
         s = s.split()[::-1]   # split and reverse
         # invert solution
@@ -189,3 +217,6 @@ class ScrambleGenerator():
                 s[i] = s[i][0]
         return " ".join(s)
 
+    def exit(self):
+        self.exit_now.set()
+        self.get_scramble()

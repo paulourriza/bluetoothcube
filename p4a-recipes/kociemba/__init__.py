@@ -2,7 +2,7 @@ from pythonforandroid.recipe import PythonRecipe
 
 
 class KociembaRecipe(PythonRecipe):
-    version = '1.2'
+    version = '1.2.1'
     url = 'https://github.com/muodov/kociemba/archive/{version}.tar.gz'
     depends = ['python3', 'setuptools', 'cffi', 'libffi']
 

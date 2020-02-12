@@ -36,7 +36,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,kociemba,libffi,cffi
+requirements = python3,kivy,libffi,cffi,pytest-runner,kociemba
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes

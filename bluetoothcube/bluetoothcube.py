@@ -177,15 +177,18 @@ class ScrambleDetector(kivy.event.EventDispatcher):
     def on_manual_scramble_finished(self, *args):
         pass
 
+
+# Populates a buffer of scrambles that can be consumed by calling get_scramble().
+# TODO: can instead be written as EventDispatcher instead of Thread
 class ScrambleGenerator(Thread):
     def __init__(self):
+        super().__init__()
         self.max_scrambles = 5
         self.scrambles = []
+        self.exit_now = Event()
+        self.buffer_not_empty = Event()
         self.buffer_not_full = Event()
         self.buffer_not_full.set()
-        self.buffer_not_empty = Event()
-        self.exit_now = Event()
-        Thread.__init__(self)
 
     def run(self):
         while not self.exit_now.is_set():

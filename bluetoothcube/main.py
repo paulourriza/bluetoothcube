@@ -33,7 +33,6 @@ if kivy.platform == "linux":
 
 class BluetoothCubeApp(App):
     cubelist = kivy.properties.ObjectProperty(None)
-    methodlist = kivy.properties.ObjectProperty(None)
 
     def __init__(self):
         super(BluetoothCubeApp, self).__init__()
@@ -72,14 +71,12 @@ class BluetoothCubeApp(App):
             on_manual_scramble_finished=lambda sd: self.autoprime())
 
         self.analyzer = Analyzer(self.cube, self.timer)
-        self.method_count = 0
-        self.methods = self.analyzer.get_methods()
-        self.method_buttons = []
 
         self.timer.use_analyzer(self.analyzer)
 
         self.scrambler = ScrambleGenerator()
         self.scrambler.start()
+
 
         # When the app starts, start a scan.
         Clock.schedule_once(lambda td: self.start_scan(), 1)
@@ -238,21 +235,21 @@ class BluetoothCubeApp(App):
 
     def on_method_button_pressed(self, instance):
         self.analyzer.set_method(instance.text)
-        self.root.current = 'timer'
+        self.method_popup.dismiss()
 
     def select_method(self):
-        self.root.current = 'method-selection'
+        self.method_popup.open()
 
     def get_new_scramble(self):
         self.root.scramble.text = self.scrambler.get_scramble()
 
     def create_method_list(self):
-        for m in self.methods:
+        self.method_popup = Factory.MethodSelectionPopup()
+        for m in self.analyzer.get_methods():
             button = MethodButton()
             button.button.text = m
             button.button.bind(on_press = self.on_method_button_pressed)
-            self.method_buttons.append(button)
-            self.root.methodlist.add_widget(button,index=self.method_count)
+            self.method_popup.methodlist.add_widget(button)
 
     def autoprime(self):
         if not self.timer.running and not self.timer.primed:

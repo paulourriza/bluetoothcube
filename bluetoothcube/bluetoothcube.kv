@@ -17,8 +17,8 @@
     Button:
         id: button
         size_hint: 0.85, None
-        font_size: '50sp'
-        height: '80sp'
+        font_size: '40sp'
+        height: '60sp'
 
 <CubeStateDisplay>:
     font_size: '20dp'
@@ -246,6 +246,20 @@
                 font_size: '25sp'
                 on_release: root.dismiss()
 
+
+<MethodSelectionPopup@Popup>:
+    methodlist: methodlist
+    title: "Select Method:"
+    title_size: '20sp'
+    title_align: 'center'
+    auto_dismiss: True
+    size_hint: None, None
+    size: app.root_window.width - dp(40), '250dp'
+    BoxLayout:
+        orientation: 'vertical'
+        id: methodlist
+        size_hint: 1, 1
+
 <AnalysisDisplay>:
     text_size: self.size
     valign: 'top'
@@ -255,7 +269,6 @@
 
 <BluetoothCubeRoot>:
     cubelist: cubelist
-    methodlist: methodlist
     connecting_label: connecting_label
     connecting_progressbar: connecting_progressbar
     connecting_cancelbutton: connecting_cancelbutton
@@ -433,17 +446,3 @@
                 text: "Start" if not app.timer.running else "Stop"
                 font_size: dp(40)
                 height: self.font_size + dp(15)
-
-    Screen:
-        name: "method-selection"
-        BoxLayout:
-            orientation: 'vertical'
-            Label:
-                size_hint: 1, None
-                text: "Select a method:"
-                font_size: '40sp'
-                height: '42sp'
-            BoxLayout:
-                orientation: 'vertical'
-                id: methodlist
-                size_hint: 1, 1

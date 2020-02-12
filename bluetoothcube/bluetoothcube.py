@@ -129,7 +129,8 @@ class BluetoothCube(kivy.event.EventDispatcher):
 # scrambling the cube, and emits a signal when that happens.
 class ScrambleDetector(kivy.event.EventDispatcher):
     # TODO: These constants should be customizable
-    MIN_LENGTH = 30
+    MIN_LENGTH = 15
+    MIN_SOLUTION = 5
     DELAY = 3.0
 
     def __init__(self, cube: BluetoothCube) -> None:
@@ -169,10 +170,13 @@ class ScrambleDetector(kivy.event.EventDispatcher):
         # User did not make a move for DELAY seconds.
         self.mid_scramble = False
         if self.scramble_length > self.MIN_LENGTH:
-            # TODO: Use kociemba solver to discard scrambles where very short
-            # solution exists.
-            print("SCRAMBLED!!!")
-            self.dispatch('on_manual_scramble_finished')
+            cube_str = self.cube.cube_state.toFaceCube().to_String()
+            solution_length = len(solve(cube_str).split()) 
+            if solution_length <= self.MIN_SOLUTION:
+                print("NOT SCRAMBLED ENOUGH: kociemba solution is", solution_length, "steps")
+            else: 
+                print("SCRAMBLED!!! kociemba solution is", solution_length, " steps")
+                self.dispatch('on_manual_scramble_finished')
 
     def on_manual_scramble_finished(self, *args):
         pass

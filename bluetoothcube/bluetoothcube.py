@@ -1,8 +1,11 @@
 import kivy
+import random
 
 from kivy.clock import Clock
 from kociemba.pykociemba.color import color_keys
-from kociemba.pykociemba.tools import randomCube
+#from kociemba.pykociemba.tools import randomCube
+from kociemba.pykociemba.cubiecube import CubieCube
+from kociemba.pykociemba.coordcube import CoordCube
 from kociemba import solve
 from threading import Thread, Event
 
@@ -135,6 +138,7 @@ class ScrambleDetector(kivy.event.EventDispatcher):
 
     def __init__(self, cube: BluetoothCube) -> None:
         self.register_event_type('on_manual_scramble_finished')
+        self.register_event_type('on_target_scramble_matched')
         super().__init__()
 
         self.cube = cube
@@ -171,16 +175,40 @@ class ScrambleDetector(kivy.event.EventDispatcher):
         self.mid_scramble = False
         if self.scramble_length > self.MIN_LENGTH:
             cube_str = self.cube.cube_state.toFaceCube().to_String()
-            solution_length = len(solve(cube_str).split()) 
+            if cube_str == self.target_scramble.to_String():
+                self.dispatch('on_target_scramble_matched')
+            solution_length = len(solve(cube_str).split())
             if solution_length <= self.MIN_SOLUTION:
                 print("NOT SCRAMBLED ENOUGH: kociemba solution is", solution_length, "steps")
-            else: 
+            else:
                 print("SCRAMBLED!!! kociemba solution is", solution_length, " steps")
                 self.dispatch('on_manual_scramble_finished')
 
     def on_manual_scramble_finished(self, *args):
         pass
 
+    def on_target_scramble_matched(self, *args):
+        pass
+
+    def set_scramble(self, fc):
+        self.target_scramble = fc
+
+def randomCube():
+    """
+    Generates a random cube.
+    @return A random cube in the string representation. Each cube of the cube space has the same probability.
+    """
+    cc = CubieCube()
+    cc.setFlip(random.randint(0, CoordCube.N_FLIP - 1))
+    cc.setTwist(random.randint(0, CoordCube.N_TWIST - 1))
+    while True:
+        cc.setURFtoDLB(random.randint(0, CoordCube.N_URFtoDLB - 1))
+        cc.setURtoBR(random.randint(0, CoordCube.N_URtoBR - 1))
+
+        if (cc.edgeParity() ^ cc.cornerParity()) == 0:
+            break
+    fc = cc.toFaceCube()
+    return fc
 
 # Populates a buffer of scrambles that can be consumed by calling get_scramble().
 # TODO: can instead be written as EventDispatcher instead of Thread
@@ -189,6 +217,7 @@ class ScrambleGenerator(Thread):
         super().__init__()
         self.max_scrambles = 5
         self.scrambles = []
+        self.scramble_state = []
         self.exit_now = Event()
         self.buffer_not_empty = Event()
         self.buffer_not_full = Event()
@@ -213,7 +242,8 @@ class ScrambleGenerator(Thread):
         return s
 
     def generate_scramble(self):
-        s = solve(randomCube())
+        fc = randomCube()
+        s = solve(fc.to_String())
         s = s.split()[::-1]   # split and reverse
         # invert solution
         for i in range(len(s)):
@@ -221,7 +251,7 @@ class ScrambleGenerator(Thread):
                 s[i] += "'"
             elif s[i][1] == "'":
                 s[i] = s[i][0]
-        return " ".join(s)
+        return (" ".join(s), fc)
 
     def exit(self):
         self.exit_now.set()

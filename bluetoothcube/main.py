@@ -69,6 +69,8 @@ class BluetoothCubeApp(App):
         self.scrambledetector = ScrambleDetector(self.cube)
         self.scrambledetector.bind(
             on_manual_scramble_finished=lambda sd: self.autoprime())
+        self.scrambledetector.bind(
+            on_target_scramble_matched=lambda sd: self.scramblematch())
 
         self.analyzer = Analyzer(self.cube, self.timer)
 
@@ -241,7 +243,10 @@ class BluetoothCubeApp(App):
         self.method_popup.open()
 
     def get_new_scramble(self):
-        self.root.scramble.text = self.scrambler.get_scramble()
+        s = self.scrambler.get_scramble()
+        self.root.scramble.text = s[0]
+        self.root.scramble.color = [1, 1, 1, 1] 
+        self.scrambledetector.set_scramble(s[1])
 
     def create_method_list(self):
         self.method_popup = Factory.MethodSelectionPopup()
@@ -255,3 +260,6 @@ class BluetoothCubeApp(App):
         if not self.timer.running and not self.timer.primed:
             print("Autoprime.")
             self.timer.prime()
+
+    def scramblematch(self):
+        self.root.scramble.color = [0, 1, 0, 1] 

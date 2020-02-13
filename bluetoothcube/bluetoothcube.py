@@ -1,13 +1,12 @@
 import kivy
-import random
 
 from kivy.clock import Clock
 from kociemba.pykociemba.color import color_keys
-#from kociemba.pykociemba.tools import randomCube
 from kociemba.pykociemba.cubiecube import CubieCube
 from kociemba.pykociemba.coordcube import CoordCube
 from kociemba import solve
 from threading import Thread, Event
+from random import randint
 
 from bluetoothcube.cubestate import CubieCube, MOVES_GIIKER_TO_KOCIEMBA
 
@@ -193,57 +192,27 @@ class ScrambleDetector(kivy.event.EventDispatcher):
     def set_scramble(self, fc):
         self.target_scramble = fc
 
-def randomCube():
-    """
-    Generates a random cube.
-    @return A random cube in the string representation. Each cube of the cube space has the same probability.
-    """
-    cc = CubieCube()
-    cc.setFlip(random.randint(0, CoordCube.N_FLIP - 1))
-    cc.setTwist(random.randint(0, CoordCube.N_TWIST - 1))
-    while True:
-        cc.setURFtoDLB(random.randint(0, CoordCube.N_URFtoDLB - 1))
-        cc.setURtoBR(random.randint(0, CoordCube.N_URtoBR - 1))
 
-        if (cc.edgeParity() ^ cc.cornerParity()) == 0:
-            break
-    fc = cc.toFaceCube()
-    return fc
+class ScrambleGenerator:
+    def scramble(self):
+        """
+        Generates a random cube.
+        @return A random cube in FaceCube representation.
+        Each cube of the cube space has the same probability.
+        """
+        cc = CubieCube()
+        cc.setFlip(randint(0, CoordCube.N_FLIP - 1))
+        cc.setTwist(randint(0, CoordCube.N_TWIST - 1))
+        while True:
+            cc.setURFtoDLB(randint(0, CoordCube.N_URFtoDLB - 1))
+            cc.setURtoBR(randint(0, CoordCube.N_URtoBR - 1))
 
-# Populates a buffer of scrambles that can be consumed by calling get_scramble().
-# TODO: can instead be written as EventDispatcher instead of Thread
-class ScrambleGenerator(Thread):
-    def __init__(self):
-        super().__init__()
-        self.max_scrambles = 5
-        self.scrambles = []
-        self.scramble_state = []
-        self.exit_now = Event()
-        self.buffer_not_empty = Event()
-        self.buffer_not_full = Event()
-        self.buffer_not_full.set()
+            if (cc.edgeParity() ^ cc.cornerParity()) == 0:
+                break
+        self.fc = cc.toFaceCube()
 
-    def run(self):
-        while not self.exit_now.is_set():
-            if len(self.scrambles) < self.max_scrambles:
-                s = self.generate_scramble()
-                self.scrambles.append(s)
-                self.buffer_not_empty.set()
-            else:
-                self.buffer_not_full.clear()
-                self.buffer_not_full.wait()
-
-    def get_scramble(self):
-        if len(self.scrambles) == 0:
-            self.buffer_not_empty.clear()
-            self.buffer_not_empty.wait()
-        s = self.scrambles.pop()
-        self.buffer_not_full.set()
-        return s
-
-    def generate_scramble(self):
-        fc = randomCube()
-        s = solve(fc.to_String())
+    def to_String(self):
+        s = solve(self.fc.to_String())
         s = s.split()[::-1]   # split and reverse
         # invert solution
         for i in range(len(s)):
@@ -251,8 +220,4 @@ class ScrambleGenerator(Thread):
                 s[i] += "'"
             elif s[i][1] == "'":
                 s[i] = s[i][0]
-        return (" ".join(s), fc)
-
-    def exit(self):
-        self.exit_now.set()
-        self.get_scramble()
+        return " ".join(s)

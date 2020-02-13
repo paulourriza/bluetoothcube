@@ -77,8 +77,6 @@ class BluetoothCubeApp(App):
         self.timer.use_analyzer(self.analyzer)
 
         self.scrambler = ScrambleGenerator()
-        self.scrambler.start()
-
 
         # When the app starts, start a scan.
         Clock.schedule_once(lambda td: self.start_scan(), 1)
@@ -95,9 +93,6 @@ class BluetoothCubeApp(App):
         return BluetoothCubeRoot()
 
     def on_stop(self):
-        # Terminate scrambler thread
-        self.scrambler.exit()
-
         # Save time history.
         self.timehistory.persist()
 
@@ -243,10 +238,10 @@ class BluetoothCubeApp(App):
         self.method_popup.open()
 
     def get_new_scramble(self):
-        s = self.scrambler.get_scramble()
-        self.root.scramble.text = s[0]
-        self.root.scramble.color = [1, 1, 1, 1] 
-        self.scrambledetector.set_scramble(s[1])
+        self.scrambler.scramble()
+        self.root.scramble.text = self.scrambler.to_String()
+        self.root.scramble.color = [1, 1, 1, 1]
+        self.scrambledetector.set_scramble(self.scrambler.fc)
 
     def create_method_list(self):
         self.method_popup = Factory.MethodSelectionPopup()
@@ -262,4 +257,4 @@ class BluetoothCubeApp(App):
             self.timer.prime()
 
     def scramblematch(self):
-        self.root.scramble.color = [0, 1, 0, 1] 
+        self.root.scramble.color = [0, 1, 0, 1]
